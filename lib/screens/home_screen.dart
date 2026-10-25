@@ -269,17 +269,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            gradient: const LinearGradient(
-              colors: [AppTheme.accent, AppTheme.accentDim],
-            ),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: Image.asset(
+            'assets/logo.png',
+            width: 48,
+            height: 48,
+            fit: BoxFit.cover,
           ),
-          child: const Icon(Icons.phonelink_rounded,
-              color: Color(0xFF042F2E), size: 28),
         ),
         const SizedBox(width: 16),
         Expanded(
