@@ -540,8 +540,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             '1. USB + same Wi‑Fi → Connect (USB → Wireless) → unplug cable\n'
             '2. Next day → Reconnect (no cable) → flutter run / Hot Reload\n'
-            '3. Live Screen → mouse & keyboard control (scrcpy)\n'
-            '4. Double-click tools\\Connect.bat or tools\\Reconnect.bat anytime',
+            '3. Live Screen → mouse & keyboard (scrcpy)\n'
+            '4. Xiaomi/Redmi: enable USB debugging (Security settings) + reboot\n'
+            '5. Double-click tools\\Connect.bat or tools\\Reconnect.bat anytime',
             style: TextStyle(color: AppTheme.muted, height: 1.45, fontSize: 13),
           ),
         ],

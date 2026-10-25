@@ -58,9 +58,12 @@ class ScrcpyService {
   Future<bool> isAvailable() async => (await resolveScrcpyPath()) != null;
 
   /// Opens a live mirror window. Prefer [serial] when multiple devices exist.
+  ///
+  /// [stayAwake] defaults to false — `--stay-awake` writes secure settings and
+  /// throws on many Xiaomi/MIUI devices without WRITE_SECURE_SETTINGS.
   Future<({bool success, String message})> startLiveScreen({
     String? serial,
-    bool stayAwake = true,
+    bool stayAwake = false,
     bool turnScreenOff = false,
     int maxSize = 1024,
   }) async {
@@ -77,6 +80,10 @@ class ScrcpyService {
       if (serial != null && serial.isNotEmpty) ...['--serial', serial],
       if (stayAwake) '--stay-awake',
       if (turnScreenOff) '--turn-screen-off',
+      // SDK injection works over Wi-Fi; Xiaomi also needs
+      // "USB debugging (Security settings)" + reboot.
+      '--mouse=sdk',
+      '--keyboard=sdk',
       '--max-size',
       '$maxSize',
       '--window-title',
@@ -93,7 +100,9 @@ class ScrcpyService {
       return (
         success: true,
         message:
-            'Live screen opened — control the phone with mouse & keyboard.',
+            'Live screen opened. If clicks/keys do nothing on Xiaomi: enable '
+            'Developer options → USB debugging (Security settings), reboot, '
+            'Reconnect, then try again.',
       );
     } on Exception catch (e) {
       return (success: false, message: 'Failed to start scrcpy: $e');

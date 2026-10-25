@@ -183,12 +183,17 @@ switch ($Action) {
       exit 1
     }
     Write-Host "Launching live screen: $scrcpy" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "If mouse/keyboard do nothing (common on Xiaomi/Redmi/POCO):" -ForegroundColor Yellow
+    Write-Host "  Phone -> Settings -> Additional settings -> Developer options"
+    Write-Host "  Enable: USB debugging (Security settings)"
+    Write-Host "  Then REBOOT the phone, run Reconnect.bat, and open Live Screen again."
+    Write-Host ""
     $dir = Split-Path $scrcpy
-    $args = @(
-      '--stay-awake',
-      '--max-size', '1024',
-      '--window-title', 'Wireless Phone Live'
-    )
-    Start-Process -FilePath $scrcpy -WorkingDirectory $dir -ArgumentList $args
+    # Do NOT use --stay-awake: it needs WRITE_SECURE_SETTINGS and fails on Xiaomi/MIUI.
+    # --mouse=sdk --keyboard=sdk inject via Android APIs (needs Security settings on Xiaomi).
+    # Quote title — Start-Process splits on spaces inside ArgumentList.
+    $argLine = '--mouse=sdk --keyboard=sdk --max-size 1024 --window-title "Wireless Phone Live"'
+    Start-Process -FilePath $scrcpy -WorkingDirectory $dir -ArgumentList $argLine
   }
 }

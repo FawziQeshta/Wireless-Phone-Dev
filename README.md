@@ -7,7 +7,7 @@ Wireless Android debugging + live phone screen on your PC — **no cable after f
 | Who | What you need | How to use |
 |-----|----------------|------------|
 | **Android native** (Android Studio / Kotlin / Java) | `adb` only — **no Flutter** | Double‑click `tools\*.bat` or download the Release `.zip` |
-| **Flutter** | `adb` (+ Flutter for your apps) | Same tools + wireless `flutter run` / Hot Reload |
+| **Flutter** / **React Native (Android)** | `adb` (+ your SDK) | Same tools + wireless run / Hot Reload / Fast Refresh |
 
 Works with **Android Studio**, **VS Code**, and **Flutter**.
 
@@ -44,13 +44,40 @@ tools\Status.bat       ← list adb devices
 2. Debug as usual over Wi‑Fi  
 
 **Android Studio / native:** pick the `ip:5555` device in the device list, Run / Debug.  
-**Flutter:** `flutter devices` then `flutter run -d <ip>:5555` (Hot Reload works).
+**Flutter:** `flutter devices` then `flutter run -d <ip>:5555` (Hot Reload works).  
+**React Native:** `npx react-native run-android` (device shows as `ip:5555`).
 
 **Next day**
 
 1. Same Wi‑Fi, phone unlocked  
 2. Double‑click `Reconnect.bat` (~2 seconds)  
 3. Run / Debug again — no cable  
+
+---
+
+## Live Screen — mouse & keyboard (important)
+
+Mirror works out of the box. **Clicks and keys** need an extra setting on many phones (especially **Xiaomi / Redmi / POCO / MIUI**):
+
+1. Phone → **Settings → Additional settings → Developer options**
+2. Turn **ON**: **USB debugging (Security settings)**  
+   (this is different from normal “USB debugging”)
+3. Confirm any MIUI warning
+4. **Reboot** the phone
+5. Run `Reconnect.bat`
+6. Run `LiveScreen.bat`
+
+```
+Developer options → USB debugging (Security settings) → ON → reboot → Reconnect.bat → LiveScreen.bat
+```
+
+Without that security option, scrcpy can show the screen but mouse/keyboard do nothing ([scrcpy FAQ](https://github.com/Genymobile/scrcpy)).
+
+Also run once if needed:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\setup_scrcpy.ps1
+```
 
 ---
 
@@ -68,10 +95,8 @@ Buttons in the app: **Connect**, **Reconnect**, **Live Screen**, **Disconnect**.
 Maintainers: after `gh auth login`, publish with:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools\publish_release.ps1 -SkipBuild
+powershell -ExecutionPolicy Bypass -File tools\publish_release.ps1
 ```
-
-(Local zip is already built at `dist\WirelessPhoneDev-windows-x64.zip`.)
 
 ---
 
@@ -105,6 +130,7 @@ Output folder: `build\windows\x64\runner\Release\`
 2. `Reconnect.bat` (or Reconnect in the app)  
 3. Run your app from Android Studio or Flutter  
 4. Optional: `LiveScreen.bat` for remote control  
+5. If no mouse/keyboard: enable **USB debugging (Security settings)** → reboot → Reconnect → LiveScreen  
 
 If reconnect fails (OEM reset TCP mode), plug USB once and run **Connect** again.
 
@@ -121,6 +147,7 @@ tools/                 ← use this if you are native Android (no Flutter)
   adb_wireless.ps1
   setup_scrcpy.ps1
 lib/                   ← Flutter Windows GUI source
+assets/logo.png        ← app / launcher icon
 ```
 
 ---
@@ -130,6 +157,7 @@ lib/                   ← Flutter Windows GUI source
 - Port **5555** is standard ADB-over-TCP.
 - Allow LAN access in Windows Firewall if connect fails.
 - Some OEMs reset wireless ADB after reboot — one USB **Connect** restores it.
+- Do not use scrcpy `--stay-awake` on Xiaomi — it needs `WRITE_SECURE_SETTINGS` and errors out; Live Screen is configured without it.
 - scrcpy is free/open source (~10 MB), much lighter than commercial mirroring apps.
 
 ## License
