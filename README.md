@@ -1,88 +1,129 @@
 # Wireless Phone Dev
 
-Lightweight Flutter + ADB toolkit for **wireless Android debugging** and a **live phone screen** on your laptop — mouse & keyboard control, no cable after the first setup, no Vysor.
+Wireless Android debugging + live phone screen on your PC — **no cable after first setup**, no Vysor.
 
-Works with **Flutter**, **Android Studio**, and **VS Code**.
+**For both:**
 
-## What you get
+| Who | What you need | How to use |
+|-----|----------------|------------|
+| **Android native** (Android Studio / Kotlin / Java) | `adb` only — **no Flutter** | Double‑click `tools\*.bat` or download the Release `.zip` |
+| **Flutter** | `adb` (+ Flutter for your apps) | Same tools + wireless `flutter run` / Hot Reload |
 
-| Action | What it does |
-|--------|----------------|
-| **Connect (USB → Wireless)** | Reads the phone IP, opens port `5555`, connects over Wi‑Fi. Then unplug. |
-| **Reconnect** | Next day / after reboot: double‑click and you’re back online in ~2 seconds. No cable. |
-| **Live Screen** | Mirrors the phone on the PC and lets you control it with mouse & keyboard ([scrcpy](https://github.com/Genymobile/scrcpy)). |
-| **Hot Reload / Debug** | Same as USB: `flutter run`, breakpoints, DevTools — over Wi‑Fi. |
+Works with **Android Studio**, **VS Code**, and **Flutter**.
 
-## Prerequisites
+---
 
-1. **Android SDK platform-tools** (`adb`) — usually via Android Studio  
-   - Default path: `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`
-2. Phone and PC on the **same Wi‑Fi**
-3. **USB debugging** enabled (Developer options)
-4. For Live Screen: run once  
-   `powershell -ExecutionPolicy Bypass -File tools\setup_scrcpy.ps1`
+## Option A — Double‑click scripts (recommended for everyone)
 
-## Fast path (double‑click — no Flutter build needed)
+Clone the repo (or download ZIP). **No Flutter SDK required.**
 
-```
-tools\Connect.bat      ← first time, cable plugged in
-tools\Reconnect.bat    ← every later session, no cable
-tools\LiveScreen.bat   ← wireless mirror + mouse/keyboard
-tools\Status.bat       ← adb devices
+### Prerequisites
+
+1. **Android SDK platform-tools** (`adb`) — comes with Android Studio  
+   - Typical path: `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`
+2. Phone + PC on the **same Wi‑Fi**
+3. **USB debugging** ON (Developer options)
+4. Live Screen only — run once:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\setup_scrcpy.ps1
 ```
 
-After **Connect**, unplug the USB cable. Run / debug / Hot Reload as usual:
+### Commands
+
+```
+tools\Connect.bat      ← first time (USB cable plugged in)
+tools\Reconnect.bat    ← next day / every session (no cable)
+tools\LiveScreen.bat   ← mirror + mouse & keyboard
+tools\Status.bat       ← list adb devices
+```
+
+**First time**
+
+1. Plug USB → run `Connect.bat` → unplug  
+2. Debug as usual over Wi‑Fi  
+
+**Android Studio / native:** pick the `ip:5555` device in the device list, Run / Debug.  
+**Flutter:** `flutter devices` then `flutter run -d <ip>:5555` (Hot Reload works).
+
+**Next day**
+
+1. Same Wi‑Fi, phone unlocked  
+2. Double‑click `Reconnect.bat` (~2 seconds)  
+3. Run / Debug again — no cable  
+
+---
+
+## Option B — Desktop app (GitHub Release)
+
+Prebuilt Windows GUI — **no Flutter SDK to use it**.
+
+1. Open [Releases](https://github.com/FawziQeshta/Wireless-Phone-Dev/releases)
+2. Download `WirelessPhoneDev-windows-x64.zip`
+3. Unzip and run `wireless_phone_dev.exe`
+4. Still need `adb` on the machine (Android Studio / SDK)
+
+Buttons in the app: **Connect**, **Reconnect**, **Live Screen**, **Disconnect**.
+
+---
+
+## Option C — Build the GUI from source (Flutter developers)
 
 ```bash
-flutter devices
-flutter run -d <your-ip>:5555
-```
-
-## Flutter desktop app
-
-```bash
-cd WirelessPhoneDev
 flutter pub get
 flutter run -d windows
-```
-
-Or build a standalone exe:
-
-```bash
+# or
 flutter build windows
 ```
 
-Output: `build\windows\x64\runner\Release\wireless_phone_dev.exe`
+Output folder: `build\windows\x64\runner\Release\`
 
-## Typical day‑two flow
+---
+
+## What each action does
+
+| Action | What it does |
+|--------|----------------|
+| **Connect (USB → Wireless)** | Reads phone IP, opens port `5555`, connects over Wi‑Fi. Then unplug. |
+| **Reconnect** | Uses saved IP — back online in ~2 seconds, no cable. |
+| **Live Screen** | Full mirror + mouse/keyboard via [scrcpy](https://github.com/Genymobile/scrcpy). |
+| **Debug / Hot Reload** | Same as USB — Android Studio Run, or `flutter run`. |
+
+---
+
+## Day‑two checklist
 
 1. Phone unlocked, Wi‑Fi on (same network as PC)  
-2. Double‑click **Reconnect.bat** (or tap Reconnect in the app)  
-3. `flutter run` / Hot Reload  
-4. Optional: **Live Screen** for full remote control  
+2. `Reconnect.bat` (or Reconnect in the app)  
+3. Run your app from Android Studio or Flutter  
+4. Optional: `LiveScreen.bat` for remote control  
 
-If reconnect fails (phone sleep policies / wireless debugging reset), plug USB once and run **Connect** again.
+If reconnect fails (OEM reset TCP mode), plug USB once and run **Connect** again.
+
+---
 
 ## Project layout
 
 ```
-lib/                 Flutter Windows UI
-tools/
+tools/                 ← use this if you are native Android (no Flutter)
   Connect.bat
   Reconnect.bat
   LiveScreen.bat
-  adb_wireless.ps1   Core ADB automation
-  setup_scrcpy.ps1   Download official scrcpy (~10 MB)
-  scrcpy/            Place scrcpy.exe here (or use setup script)
+  Status.bat
+  adb_wireless.ps1
+  setup_scrcpy.ps1
+lib/                   ← Flutter Windows GUI source
 ```
+
+---
 
 ## Notes
 
-- Port **5555** is the standard ADB-over-TCP port.
-- Firewall: allow ADB/outbound to the phone on your LAN.
-- Some OEMs reset `tcpip` mode after reboot — **Reconnect** usually still works if the daemon stayed in TCP mode; otherwise one USB **Connect** restores it.
-- scrcpy is free, open source, and far lighter than commercial mirroring apps.
+- Port **5555** is standard ADB-over-TCP.
+- Allow LAN access in Windows Firewall if connect fails.
+- Some OEMs reset wireless ADB after reboot — one USB **Connect** restores it.
+- scrcpy is free/open source (~10 MB), much lighter than commercial mirroring apps.
 
 ## License
 
-Use freely for your own development workflow. scrcpy is copyright Genymobile (Apache-2.0).
+Use freely for your development workflow. scrcpy © Genymobile (Apache-2.0).
