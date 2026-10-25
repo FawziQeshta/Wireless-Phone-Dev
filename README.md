@@ -65,6 +65,14 @@ Prebuilt Windows GUI — **no Flutter SDK to use it**.
 
 Buttons in the app: **Connect**, **Reconnect**, **Live Screen**, **Disconnect**.
 
+Maintainers: after `gh auth login`, publish with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\publish_release.ps1 -SkipBuild
+```
+
+(Local zip is already built at `dist\WirelessPhoneDev-windows-x64.zip`.)
+
 ---
 
 ## Option C — Build the GUI from source (Flutter developers)
