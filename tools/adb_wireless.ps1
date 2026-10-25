@@ -64,10 +64,10 @@ function Load-State {
 }
 
 function Get-UsbSerial([string]$Adb) {
-  $lines = & $Adb devices -l | Select-Object -Skip 1
+  $lines = @(& $Adb devices -l | Select-Object -Skip 1)
   foreach ($line in $lines) {
-    if ($line -match '^\s*$') { continue }
-    $parts = ($line -split '\s+') | Where-Object { $_ }
+    if ([string]::IsNullOrWhiteSpace($line)) { continue }
+    $parts = @(($line -split '\s+') | Where-Object { $_ })
     if ($parts.Count -lt 2) { continue }
     $id = $parts[0]
     $state = $parts[1]
@@ -78,15 +78,29 @@ function Get-UsbSerial([string]$Adb) {
   return $null
 }
 
+function Get-TextFromAdbOutput($out) {
+  if ($null -eq $out) { return '' }
+  return (@($out) | ForEach-Object { "$_" }) -join "`n"
+}
+
 function Get-DeviceIp([string]$Adb, [string]$Serial) {
+  # IMPORTANT: adb often returns a string[]. In PowerShell, array -match filters
+  # lines and does NOT populate $Matches — that caused "Cannot index into a null array".
   foreach ($iface in @('wlan0', 'wlan1', 'eth0')) {
-    $out = & $Adb -s $Serial shell ip -f inet addr show $iface 2>$null
+    $out = Get-TextFromAdbOutput (& $Adb -s $Serial shell ip -f inet addr show $iface 2>&1)
     if ($out -match 'inet\s+(\d+\.\d+\.\d+\.\d+)') { return $Matches[1] }
   }
-  $route = & $Adb -s $Serial shell ip route get 8.8.8.8 2>$null
+
+  $route = Get-TextFromAdbOutput (& $Adb -s $Serial shell ip route get 8.8.8.8 2>&1)
   if ($route -match 'src\s+(\d+\.\d+\.\d+\.\d+)') { return $Matches[1] }
-  $prop = (& $Adb -s $Serial shell getprop dhcp.wlan0.ipaddress 2>$null).Trim()
+
+  $ifconfig = Get-TextFromAdbOutput (& $Adb -s $Serial shell ifconfig wlan0 2>&1)
+  if ($ifconfig -match 'inet addr:(\d+\.\d+\.\d+\.\d+)') { return $Matches[1] }
+  if ($ifconfig -match 'inet\s+(\d+\.\d+\.\d+\.\d+)') { return $Matches[1] }
+
+  $prop = (Get-TextFromAdbOutput (& $Adb -s $Serial shell getprop dhcp.wlan0.ipaddress 2>&1)).Trim()
   if ($prop -match '^\d+\.\d+\.\d+\.\d+$') { return $prop }
+
   return $null
 }
 
