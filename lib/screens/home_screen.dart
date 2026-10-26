@@ -180,12 +180,22 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      final result = await _scrcpy.startLiveScreen(serial: target.id);
+      final result = await _scrcpy.startLiveScreen(
+        serial: target.id,
+        onStatus: (status) {
+          _appendLogs([status]);
+          setState(() {
+            _statusMessage = status;
+            _statusOk = true;
+          });
+        },
+      );
       _appendLogs([result.message]);
       setState(() {
         _statusMessage = result.message;
         _statusOk = result.success;
       });
+      await _refreshTools();
     });
   }
 

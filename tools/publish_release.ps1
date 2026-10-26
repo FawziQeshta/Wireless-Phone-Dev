@@ -1,10 +1,11 @@
 #Requires -Version 5.1
 <#
-  Builds (optional) and uploads WirelessPhoneDev-windows-x64.zip to GitHub Releases.
+  Builds (optional), bundles scrcpy next to the exe, and uploads
+  WirelessPhoneDev-windows-x64.zip to GitHub Releases.
   Prerequisites: gh auth login   AND   Flutter SDK (only if rebuilding)
 #>
 param(
-  [string]$Tag = 'v1.0.0',
+  [string]$Tag = 'v1.0.2',
   [switch]$SkipBuild
 )
 
@@ -32,6 +33,22 @@ if (-not (Test-Path $exe)) {
   throw "Missing $exe - build first or omit -SkipBuild only after a successful build."
 }
 
+# Ensure scrcpy exists in the repo tools folder, then bundle beside the exe
+$scrcpySrc = Join-Path $PSScriptRoot 'scrcpy\scrcpy.exe'
+if (-not (Test-Path $scrcpySrc)) {
+  Write-Host 'scrcpy missing — running setup_scrcpy.ps1 ...' -ForegroundColor Yellow
+  & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'setup_scrcpy.ps1')
+}
+if (-not (Test-Path $scrcpySrc)) {
+  throw 'scrcpy.exe still missing after setup. Cannot ship Live Screen.'
+}
+
+$scrcpyDest = Join-Path $releaseDir 'tools\scrcpy'
+Write-Host "Bundling scrcpy into $scrcpyDest" -ForegroundColor Cyan
+if (Test-Path $scrcpyDest) { Remove-Item $scrcpyDest -Recurse -Force }
+New-Item -ItemType Directory -Force -Path $scrcpyDest | Out-Null
+Copy-Item -Path (Join-Path $PSScriptRoot 'scrcpy\*') -Destination $scrcpyDest -Recurse -Force
+
 $dist = Join-Path $Root 'dist'
 New-Item -ItemType Directory -Force -Path $dist | Out-Null
 $zip = Join-Path $dist 'WirelessPhoneDev-windows-x64.zip'
@@ -42,12 +59,16 @@ Write-Host "Packaged: $zip" -ForegroundColor Green
 $notes = @"
 ## Wireless Phone Dev $Tag
 
-Desktop GUI for wireless ADB + live screen. **Native Android and Flutter developers** can use this — no Flutter SDK needed to run the exe (you still need ``adb`` from Android Studio / SDK).
+Windows desktop GUI for wireless ADB + live screen.
+**Native Android and Flutter / React Native (Android)** — no Flutter SDK needed to run the exe (you still need ``adb``).
 
 ### Quick start
 1. Unzip and run ``wireless_phone_dev.exe``
-2. Or use repo scripts (no Flutter): ``tools\Connect.bat`` / ``Reconnect.bat`` / ``LiveScreen.bat``
-3. For Live Screen: ``powershell -ExecutionPolicy Bypass -File tools\setup_scrcpy.ps1`` once
+2. Live Screen: scrcpy is **bundled** in ``tools\scrcpy\`` (or auto-downloads on first use)
+3. Or use repo scripts: ``tools\Connect.bat`` / ``Reconnect.bat`` / ``LiveScreen.bat``
+
+### Live Screen mouse & keyboard (Xiaomi / Redmi / POCO)
+``Developer options → USB debugging (Security settings) → ON → reboot → Reconnect → Live Screen``
 
 ### Requirements
 - Windows x64

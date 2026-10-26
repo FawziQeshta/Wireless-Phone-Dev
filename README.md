@@ -92,10 +92,12 @@ Prebuilt Windows GUI — **no Flutter SDK to use it**.
 
 Buttons in the app: **Connect**, **Reconnect**, **Live Screen**, **Disconnect**.
 
+The Release zip includes `tools\scrcpy\` next to the exe. If Live Screen says scrcpy is missing, the app can auto-download it on first click (needs internet), or run `tools\setup_scrcpy.ps1` from a full clone.
+
 Maintainers: after `gh auth login`, publish with:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools\publish_release.ps1
+powershell -ExecutionPolicy Bypass -File tools\publish_release.ps1 -Tag v1.0.2
 ```
 
 ---
