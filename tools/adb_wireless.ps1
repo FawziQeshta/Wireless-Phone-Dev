@@ -2,6 +2,7 @@
 <#
 .SYNOPSIS
   Wireless ADB helper for Flutter / Android Studio / VS Code.
+  Copyright (c) 2026 FawziQeshta — MIT License
 .PARAMETER Action
   connect   - First time: USB -> tcpip 5555 -> connect (then unplug)
   reconnect - Use saved IP (no cable)

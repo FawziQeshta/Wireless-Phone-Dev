@@ -1,5 +1,5 @@
 name: wireless_phone_dev
-description: "Wireless ADB + live phone screen for Flutter/Android Studio/VS Code — no cable after first setup, no Vysor."
+description: "Wireless ADB + live phone screen for Flutter/Android Studio/VS Code — no cable after first setup, no Vysor. Copyright (c) 2026 FawziQeshta."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

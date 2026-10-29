@@ -266,6 +266,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   LogPanel(lines: _logs),
                   const SizedBox(height: 24),
                   _buildFooterHints(),
+                  const SizedBox(height: 16),
+                  const Center(
+                    child: Text(
+                      '© 2026 FawziQeshta',
+                      style: TextStyle(
+                        color: AppTheme.muted,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

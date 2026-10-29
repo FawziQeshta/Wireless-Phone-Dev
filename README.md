@@ -164,4 +164,6 @@ assets/logo.png        ← app / launcher icon
 
 ## License
 
-Use freely for your development workflow. scrcpy © Genymobile (Apache-2.0).
+Copyright © 2026 **FawziQeshta**. Licensed under the [MIT License](LICENSE).
+
+Third-party: [scrcpy](https://github.com/Genymobile/scrcpy) © Genymobile (Apache-2.0).
